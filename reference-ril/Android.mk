@@ -2,6 +2,9 @@
 
 # XXX using libutils for simulator build only...
 #
+ifneq ($(PREBUILT_3G_MODEM_RIL),true)
+ifeq ($(BOARD_HAVE_MODEM),true)
+
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -9,15 +12,20 @@ LOCAL_SRC_FILES:= \
     reference-ril.c \
     atchannel.c \
     misc.c \
+    fcp_parser.c \
     at_tok.c
 
 LOCAL_SHARED_LIBRARIES := \
-    liblog libcutils libutils libril librilutils
+    liblog libcutils libutils libril librilutils libruntime-ril-port
 
 # for asprinf
 LOCAL_CFLAGS := -D_GNU_SOURCE
 
 LOCAL_C_INCLUDES := $(KERNEL_HEADERS)
+
+ifeq ($(BOARD_MODEM_HAVE_DATA_DEVICE),true)
+  LOCAL_CFLAGS += -DHAVE_DATA_DEVICE
+endif
 
 ifeq ($(TARGET_DEVICE),sooner)
   LOCAL_CFLAGS += -DOMAP_CSMI_POWER_CONTROL -DUSE_TI_COMMANDS
@@ -45,4 +53,7 @@ else
       libril
   LOCAL_MODULE:= reference-ril
   include $(BUILD_EXECUTABLE)
+endif
+
+endif
 endif
